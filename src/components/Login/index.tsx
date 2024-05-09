@@ -22,6 +22,8 @@ import {
 	InputRightElement,
 	InputGroup,
 	Box,
+	Image,
+	Link,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { FaRegCheckCircle } from 'react-icons/fa';
@@ -47,27 +49,16 @@ export default function LoginScreen() {
 
   }, [location.search, navigate]);
 
-
-  async function loginUserFunction() {
-    try {
-      const response = await axios.post('http://localhost:3333/sessions', {
-        email: userEmail,
-        password: userPassword,
-      });
-
-      if (response.data.token) {
-        const expirationDate = new Date();
-        expirationDate.setDate(expirationDate.getDate() + 7); // Expira em 7 dias
-
-        document.cookie = `refreshToken=${response.data.token};expires=${expirationDate.toUTCString()};path=/`;
-      }
+async function loginUserFunction() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
       navigate('/dashboard');
+			
+      resolve({ data: { token: 'your_token_here' } });
+    }, 3000); // Simula um atraso de 3 segundos antes de retornar sucesso
+  });
+}
 
-    } catch (error) {
-      console.error('Error:', error);
-      throw error;
-    }
-  }
 
   const handleLogin = async (event:any) => {
     event.preventDefault();
@@ -88,47 +79,37 @@ export default function LoginScreen() {
       minH={'100vh'}
       align={'center'}
       justify={'center'}
-      backgroundImage="./img/mapleBearBackground.jpg"
+			bgColor="#F6F6F6"
       bgSize="cover"
       bgPosition="center"
       position="relative" // Para posicionar elementos filhos relativos a este
     >
-      {/* Overlay escuro */}
-      <Flex
-        position="fixed"
-        top="0"
-        left="0"
-        right="0"
-        bottom="0"
-        bg="rgba(0, 0, 0, 0.5)" // Define um overlay escuro
-        zIndex="1" // Ajusta a camada de empilhamento
-      ></Flex>
 
+		
       <Stack
         className="meuBackground com opacity"
         spacing={4}
         w={'full'}
         maxW={'md'}
         rounded={'xl'}
-        boxShadow={'lg'}
         p={6}
         my={12}
         as="form"
         onSubmit={handleLogin}
-        bg="rgba(255, 255, 255, 0.8)"
+        bg="#F6F6F6"
         zIndex="2" // Ajusta a camada de empilhamento para que o formulário esteja sobre o overlay escuro
         position="relative" // Define a posição relativa para que o zIndex funcione corretamente
-        border="#fff solid 0.12rem"
       >
-				<Box>
-					<Image src="images" />
+				<Box display="flex" justifyContent="space-around">
+					<Image src="/Logos/loginLogo.png" w="50%"/>
+					<Heading alignSelf="center" fontFamily="sans-serif" w="50%" fontWeight="400" fontSize="2.1rem">EARLY ACCESS EXCLUSIVO</Heading>
 				</Box>
 				<InputGroup >
 					<FormControl id="email" border="solid black 0.06rem" borderRadius="1rem">
 						<Input
 						  borderRadius="1rem"
 							type="email"
-							bg={'gray.100'}
+							bg={'#ffffff'}
 							placeholder="Digite seu Email"
 							border={0}
 							color={'gray.900'}
@@ -138,7 +119,7 @@ export default function LoginScreen() {
 							value={userEmail}
 							onChange={(e) => setUserEmail(e.target.value)}
 						/>
-						<InputRightElement width='4.5rem'>
+						<InputRightElement width='4.5rem' as={"label"} htmlFor="email">
 							<BsPerson />
 						</InputRightElement>
 					</FormControl>
@@ -146,10 +127,10 @@ export default function LoginScreen() {
 
 				<InputGroup>
 					<FormControl id="password" border="solid black 0.06rem" borderRadius="1rem">
-							<Input
+							<Input 
 								type="password"
 								borderRadius="1rem"
-								bg={'gray.100'}
+								bg={'#ffffff'}
 								placeholder="Digite sua Senha"
 								border={0}
 								color={'gray.900'}
@@ -159,27 +140,32 @@ export default function LoginScreen() {
 								value={userPassword}
 								onChange={(e) => setUserPassword(e.target.value)}
 							/>
-							<InputRightElement width='4.5rem'>
+							<InputRightElement width='4.5rem' as={"label"} htmlFor="password">
 								<BsKey />
 							</InputRightElement>
 					</FormControl>
 				</InputGroup>
-        <Stack spacing={6}>
+				<Link href="#" alignSelf={"center"} color={"#5f748b"} textDecor={"underline"} fontWeight={"400"} mt="-0.5rem" fontSize="0.8rem">Esqueci minha senha</Link>
+        <Stack spacing={6} align={"center"}>
           <Button
+						w="50%"
+						h="4rem"
             type="submit"
             color={'white'}
-            bgColor={'red.500'}
+            bgColor={'blue.500'}
             _hover={{
-              bgColor: 'red',
+              bgColor: 'blue',
               opacity: 0.5,
             }}
             _active={{
-              bgColor: 'red.300',
+              bgColor: 'blue.300',
             }}
             variant={'solid'}
           >
-            Continuar
+            Entrar
           </Button>
+					<Link href="#" alignSelf={"center"} color={"#5f748b"} textDecor={"underline"} fontWeight={"400"} mt="-1rem" fontSize="0.8rem">ENTRAR COM GOOGLE</Link>
+
           {errorMessage !== '' && (
             <Stack
               direction={{ base: 'column', sm: 'row' }}
@@ -192,35 +178,6 @@ export default function LoginScreen() {
         </Stack>
       </Stack>
 
-      {/* Modal */}
-      
-			<Modal isOpen={showModal} onClose={() => setShowModal(false)} isCentered>
-				<ModalOverlay />
-				<ModalContent
-					bg="white"
-					color="gray.800"
-					borderRadius="xl"
-					p={4}
-					textAlign="center"
-					boxShadow="md"
-				>
-					<ModalCloseButton color="gray.400" />
-					<ModalHeader mt={4} fontSize="xl" fontWeight="bold">
-						Obrigado pelo seu pedido!
-					</ModalHeader>
-					<ModalBody fontSize="md">
-						<Flex flexDir={'column'}>
-							<Icon as={FaRegCheckCircle} alignSelf={"center"} color="green.500" mt={1} fontSize="3xl" />
-							Leve o ticket impresso ao refeitório
-						</Flex>
-					</ModalBody>
-					<ModalFooter justifyContent="center" mt={4}>
-						<Button colorScheme="red" onClick={() => setShowModal(false)}>
-							Fechar
-						</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal>
     </Flex>
   );
 }
